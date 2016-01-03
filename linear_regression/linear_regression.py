@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.linalg import inv
 import random
 
 from sklearn import datasets, linear_model
@@ -46,41 +47,55 @@ class LinearRegression(object):
     def score(self, X, y):
         return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)
 
+class LinearRegressionNormal(object):
+    def __init__(self):
+        pass
 
-diabetes = datasets.load_diabetes()
-# Use only one feature
-diabetes_X = diabetes.data[:, np.newaxis, 2]
-diabetes_X = scale(diabetes_X)
-diabetes_y = scale(diabetes.target)
+    def fit(self, X, y):
+        X = np.insert(X, 0, 1, axis=1)
+        self.w_ = inv(X.T.dot(X)).dot(X.T).dot(y)
+        return self
 
-diabetes_X_train = diabetes_X[:-20]
-diabetes_X_test = diabetes_X[-20:]
-# diabetes_y_train = diabetes.target[:-20]
-# diabetes_y_test = diabetes.target[-20:]
-diabetes_y_train = diabetes_y[:-20]
-diabetes_y_test = diabetes_y[-20:]
+    def predict(self, X):
+        return np.insert(X, 0, 1, axis=1).dot(self.w_)
 
-# regr = linear_model.LinearRegression()
-regr = LinearRegression(n_iter=50, fit_alg='sgd')
-regr.fit(diabetes_X_train, diabetes_y_train)
+    def score(self, X, y):
+        return 1 - sum((self.predict(X) - y)**2) / sum((y - np.mean(y))**2)
 
-# regr.fit(np.array([[0, 0], [1, 1], [2, 2]]), np.array([0, 1, 2]))
-# print(regr.predict(np.array([[3, 3]])))
-# print(regr.predict(diabetes_X_test))
+def main():
+    diabetes = datasets.load_diabetes()
+    # Use only one feature
+    diabetes_X = diabetes.data[:, np.newaxis, 2]
+    diabetes_X = scale(diabetes_X)
+    diabetes_y = scale(diabetes.target)
 
-# print('Coefficients: \n', regr.coef_)
-# print("Residual sum of squares: %.2f"
-#       % np.mean((regr.predict(diabetes_X_test) - diabetes_y_test) ** 2))
-print('Variance score: %.2f' % regr.score(diabetes_X_test, diabetes_y_test))
+    diabetes_X_train = diabetes_X[:-20]
+    diabetes_X_test = diabetes_X[-20:]
+    # diabetes_y_train = diabetes.target[:-20]
+    # diabetes_y_test = diabetes.target[-20:]
+    diabetes_y_train = diabetes_y[:-20]
+    diabetes_y_test = diabetes_y[-20:]
 
-# plt.scatter(diabetes_X_test, diabetes_y_test,  color='black')
-# plt.plot(diabetes_X_test, regr.predict(diabetes_X_test), color='blue', linewidth=3)
-# plt.xticks(())
-# plt.yticks(())
-# plt.show()
+    # regr = linear_model.LinearRegression()
+    regr = LinearRegression(n_iter=50, fit_alg='batch')
+    # regr = LinearRegressionNormal() 
+    regr.fit(diabetes_X_train, diabetes_y_train)
 
+    # regr.fit(np.array([[0, 0], [1, 1], [2, 2]]), np.array([0, 1, 2]))
+    # print(regr.predict(np.array([[3, 3]])))
 
+    # print('Coefficients: \n', regr.coef_)
+    # print("Residual sum of squares: %.2f"
+    #       % np.mean((regr.predict(diabetes_X_test) - diabetes_y_test) ** 2))
+    print('Variance score: %.2f' % regr.score(diabetes_X_test, diabetes_y_test))
 
+    # plt.scatter(diabetes_X_test, diabetes_y_test,  color='black')
+    # plt.plot(diabetes_X_test, regr.predict(diabetes_X_test), color='blue', linewidth=3)
+    # plt.xticks(())
+    # plt.yticks(())
+    # plt.show()
+
+if __name__ == '__main__': main()
 
 
 

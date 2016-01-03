@@ -1,15 +1,8 @@
 from sklearn import datasets
-
-import csv, math, random
-import pandas as pd
 import numpy as np
 from collections import defaultdict
 
-
-
-
 class KNeighborsClassifier(object):
-
 	def __init__(self, n_neighbors=5, weights='uniform'):
 		self.n_neighbors = n_neighbors
 		self.weights = weights
@@ -24,10 +17,8 @@ class KNeighborsClassifier(object):
 		return sum(abs(i) for i in data1 - data2)
 
 	def compute_weights(self, distances):
-		if self.weights == 'uniform':
-			return [(1, y) for d, y in distances]
-		else: # 'distance'
-			return [(1/d, y) for d, y in distances]
+		return [(1, y) if self.weights == 'uniform' else (1/d, y)
+				for d, y in distances]
 
 	def predictOne(self, test):
 		distances = sorted((self.distance(x, test), y) for x, y in zip(self.X, self.y))
@@ -46,6 +37,7 @@ class KNeighborsClassifier(object):
 def main():
 	iris = datasets.load_iris()
 	neig = KNeighborsClassifier()
+	print(iris.data)
 	y_fit = neig.fit(iris.data, iris.target)
 	y_pred = y_fit.predict(iris.data)	
 	print("out of a total %d points : %d" % (iris.data.shape[0],(iris.target != y_pred).sum()))
@@ -58,11 +50,3 @@ def main():
 
 
 if __name__ == '__main__': main()
-
-
-
-
-
-
-
-
